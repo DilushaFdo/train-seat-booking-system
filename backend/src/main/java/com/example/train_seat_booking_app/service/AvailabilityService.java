@@ -53,26 +53,25 @@ public class AvailabilityService {
 
         BigDecimal fare = fareCalculator.calculateFare(origin, destination);
 
-        List<SeatAvailabilityResponse> available = new ArrayList<>();
+        List<SeatAvailabilityResponse> result  = new ArrayList<>();
 
         for (Seat seat : allReservedSeats) {
-            boolean conflict = checker.hasConflict(originSeq, destSeq,
-                    existingBookings.stream()
-                            .filter(b -> b.getSeat().getId().equals(seat.getId()))
-                            .collect(Collectors.toList())
-            );
+            List<Booking> seatBookings = existingBookings.stream()
+                    .filter(b -> b.getSeat().getId().equals(seat.getId()))
+                    .collect(Collectors.toList());
 
-            if (!conflict) {
-                available.add(new SeatAvailabilityResponse(
-                        seat.getId(),
-                        seat.getCoach().getCoachNumber(),
-                        seat.getSeatNumber(),
-                        fare
-                ));
-            }
+            boolean conflict = checker.hasConflict(originSeq, destSeq, seatBookings);
+
+            result.add(new SeatAvailabilityResponse(
+                    seat.getId(),
+                    seat.getCoach().getCoachNumber(),
+                    seat.getSeatNumber(),
+                    fare,
+                    !conflict  // available = no conflict
+            ));
         }
 
-        return available;
+        return result;
     }
 
 

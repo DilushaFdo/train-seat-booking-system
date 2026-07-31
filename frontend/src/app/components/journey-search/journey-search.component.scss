@@ -1,0 +1,32 @@
+.journey-search {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  padding: 1rem;
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    select {
+      padding: 0.5rem;
+      min-width: 180px;
+    }
+  }
+
+  button {
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

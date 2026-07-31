@@ -1,0 +1,32 @@
+<div class="seat-map">
+  @if (loading) {
+    <p class="status">Loading available seats...</p>
+  }
+
+  @if (errorMessage) {
+    <p class="status error">{{ errorMessage }}</p>
+  }
+
+  @if (!loading && !errorMessage && coachGroups.length === 0) {
+    <p class="status">No seats available for this route.</p>
+  }
+
+  @for (coach of coachGroups; track coach.coachNumber) {
+    <div class="coach">
+      <h4>Coach {{ coach.coachNumber }}</h4>
+      <div class="grid">
+        @for (seat of coach.seats; track seat.seatId) {
+          <button
+            class="seat"
+            [class.booked]="!seat.available"
+            [disabled]="!seat.available"
+            (click)="onSeatClick(seat)"
+            [title]="seat.available ? 'Fare: ' + seat.fare : 'Already booked'"
+          >
+            {{ seat.seatNumber }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

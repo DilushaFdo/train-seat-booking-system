@@ -14,4 +14,5 @@ public class SeatAvailabilityResponse {
     private String coachNumber;
     private String seatNumber;
     private BigDecimal fare;
+    private boolean available;
 }

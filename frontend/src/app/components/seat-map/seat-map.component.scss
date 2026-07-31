@@ -1,0 +1,51 @@
+.seat-map {
+  padding: 1rem;
+
+  .status {
+    color: #666;
+    font-style: italic;
+
+    &.error {
+      color: #c0392b;
+    }
+  }
+
+  .coach {
+    margin-bottom: 1.5rem;
+
+    h4 {
+      margin-bottom: 0.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 0.4rem;
+      max-width: 500px;
+    }
+
+    .seat {
+  padding: 0.5rem;
+  background: #e8f5e9;
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+
+  &:hover {
+    background: #c8e6c9;
+  }
+
+  &.booked {
+    background: #ffebee;
+    border-color: #e53935;
+    color: #c62828;
+    cursor: not-allowed;
+
+    &:hover {
+      background: #ffebee;
+    }
+  }
+}
+  }
+}

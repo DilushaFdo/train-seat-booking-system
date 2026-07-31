@@ -1,0 +1,34 @@
+<div class="overlay" (click)="close()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+
+    @if (!confirmedBooking) {
+      <h3>Confirm Booking</h3>
+      <p>Seat {{ seat.seatNumber }} (Coach {{ seat.coachNumber }}) — Fare: {{ seat.fare }}</p>
+
+      <label>Passenger Name</label>
+      <input type="text" [(ngModel)]="passengerName" placeholder="Enter full name" />
+
+      @if (errorMessage) {
+        <p class="error">{{ errorMessage }}</p>
+      }
+
+      <div class="actions">
+        <button (click)="close()" [disabled]="submitting">Cancel</button>
+        <button (click)="confirm()" [disabled]="submitting || !passengerName.trim()">
+          {{ submitting ? 'Booking...' : 'Confirm' }}
+        </button>
+      </div>
+    } @else {
+      <h3>Booking Confirmed ✓</h3>
+      <p>Passenger: {{ confirmedBooking.passengerName }}</p>
+      <p>Seat {{ confirmedBooking.seatNumber }} (Coach {{ confirmedBooking.coachNumber }})</p>
+      <p>{{ confirmedBooking.originStation }} → {{ confirmedBooking.destinationStation }}</p>
+      <p>Fare: {{ confirmedBooking.fare }}</p>
+
+      <div class="actions">
+        <button (click)="close()">Done</button>
+      </div>
+    }
+
+  </div>
+</div>
