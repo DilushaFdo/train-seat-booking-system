@@ -17,4 +17,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM Booking b WHERE b.seat.id = :seatId AND b.trip.id = :tripId AND b.status = 'CONFIRMED'")
     List<Booking> findActiveBookingsForSeatAndTripForUpdate(@Param("seatId") Long id, @Param("tripId") Long id1);
+
+    @Query("SELECT b FROM Booking b WHERE b.seat.id = :seatId AND b.trip.id = :tripId")
+    List<Booking> findAllBySeatAndTrip(@Param("seatId") Long seatId, @Param("tripId") Long tripId);
 }

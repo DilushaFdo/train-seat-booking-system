@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SeatAvailability, BookingRequest, BookingResponse } from '../models/booking.models';
+import { SeatAvailability, BookingRequest, BookingResponse, TripSearchResult } from '../models/booking.models';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -19,4 +19,11 @@ export class BookingService {
   createBooking(request: BookingRequest): Observable<BookingResponse> {
     return this.http.post<BookingResponse>(`${this.baseUrl}/bookings`, request);
   }
+
+  searchTrips(fromStationId: number, toStationId: number, date: string): Observable<TripSearchResult[]> {
+  return this.http.get<TripSearchResult[]>(`${this.baseUrl}/trips/search`, {
+    params: { from: fromStationId, to: toStationId, date }
+  });
+
+}
 }

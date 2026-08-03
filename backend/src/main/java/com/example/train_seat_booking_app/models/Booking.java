@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.antlr.v4.runtime.misc.Triple;
-import org.springframework.web.bind.annotation.SessionAttribute;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -54,4 +51,5 @@ public class Booking {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
 }

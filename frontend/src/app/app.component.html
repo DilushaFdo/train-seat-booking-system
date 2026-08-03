@@ -1,8 +1,17 @@
-<app-journey-search (search)="onSearch($event)"></app-journey-search>
+<app-journey-search (search)="onSearch($event)" (selectionsStale)="onSelectionsStale($event)"></app-journey-search>
 
-@if (fromStationId && toStationId) {
+@if (fromStationId && toStationId && !selectedTripId) {
+  <app-train-select
+  [fromStationId]="fromStationId"
+  [toStationId]="toStationId"
+  [date]="selectedDate!"
+  (tripSelected)="onTripSelected($event)">
+</app-train-select>
+}
+
+@if (selectedTripId && fromStationId && toStationId) {
   <app-seat-map
-    [tripId]="tripId"
+    [tripId]="selectedTripId"
     [fromStationId]="fromStationId"
     [toStationId]="toStationId"
     [refreshTrigger]="refreshKey"
@@ -10,9 +19,9 @@
   </app-seat-map>
 }
 
-@if (selectedSeat && fromStationId && toStationId) {
+@if (selectedSeat && selectedTripId && fromStationId && toStationId) {
   <app-booking-dialog
-    [tripId]="tripId"
+    [tripId]="selectedTripId"
     [fromStationId]="fromStationId"
     [toStationId]="toStationId"
     [seat]="selectedSeat"

@@ -3,10 +3,18 @@ import { CommonModule } from '@angular/common';
 import { SeatAvailability } from '../../models/booking.models';
 import { BookingService } from '../../services/booking.service';
 
+interface SeatRow {
+  left: SeatAvailability[];
+  right: SeatAvailability[];
+}
+
 interface CoachGroup {
   coachNumber: string;
-  seats: SeatAvailability[];
+  rows: SeatRow[];
 }
+
+const SEATS_PER_ROW = 5;
+const LEFT_SEATS_PER_ROW = 3;
 
 @Component({
   selector: 'app-seat-map',
@@ -45,7 +53,7 @@ export class SeatMapComponent implements OnChanges {
           this.coachGroups = this.groupByCoach(seats);
           this.loading = false;
         },
-        error: (err) => {
+        error: () => {
           this.errorMessage = 'Could not load seat availability. Please try again.';
           this.loading = false;
         }
@@ -53,20 +61,39 @@ export class SeatMapComponent implements OnChanges {
   }
 
   private groupByCoach(seats: SeatAvailability[]): CoachGroup[] {
-    const map = new Map<string, SeatAvailability[]>();
+    const byCoach = new Map<string, SeatAvailability[]>();
     for (const seat of seats) {
-      if (!map.has(seat.coachNumber)) {
-        map.set(seat.coachNumber, []);
+      if (!byCoach.has(seat.coachNumber)) {
+        byCoach.set(seat.coachNumber, []);
       }
-      map.get(seat.coachNumber)!.push(seat);
+      byCoach.get(seat.coachNumber)!.push(seat);
     }
-    return Array.from(map.entries())
+
+    return Array.from(byCoach.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([coachNumber, seats]) => ({ coachNumber, seats }));
+      .map(([coachNumber, coachSeats]) => ({
+        coachNumber,
+        rows: this.buildRows(coachSeats)
+      }));
+  }
+
+  private buildRows(seats: SeatAvailability[]): SeatRow[] {
+    // Sort numerically by seat number so row order matches physical layout
+    const sorted = [...seats].sort((a, b) => Number(a.seatNumber) - Number(b.seatNumber));
+
+    const rows: SeatRow[] = [];
+    for (let i = 0; i < sorted.length; i += SEATS_PER_ROW) {
+      const chunk = sorted.slice(i, i + SEATS_PER_ROW);
+      rows.push({
+        left: chunk.slice(0, LEFT_SEATS_PER_ROW),
+        right: chunk.slice(LEFT_SEATS_PER_ROW)
+      });
+    }
+    return rows;
   }
 
   onSeatClick(seat: SeatAvailability): void {
-  if (!seat.available) return;
-  this.seatSelected.emit(seat);
-}
+    if (!seat.available) return;
+    this.seatSelected.emit(seat);
+  }
 }

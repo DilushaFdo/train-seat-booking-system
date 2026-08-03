@@ -1,12 +1,8 @@
 package com.example.train_seat_booking_app.service;
 
 import com.example.train_seat_booking_app.dto.SeatAvailabilityResponse;
-import com.example.train_seat_booking_app.models.Booking;
-import com.example.train_seat_booking_app.models.Seat;
-import com.example.train_seat_booking_app.models.Station;
-import com.example.train_seat_booking_app.repository.BookingRepository;
-import com.example.train_seat_booking_app.repository.SeatRepository;
-import com.example.train_seat_booking_app.repository.StationRepository;
+import com.example.train_seat_booking_app.models.*;
+import com.example.train_seat_booking_app.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,27 +18,54 @@ public class AvailabilityService {
     private SeatRepository seatRepository;
     private FareCalculator fareCalculator;
 
+    private TripRepository tripRepository;
+
+    private TrainRouteRepository trainRouteRepository;
+
     private SegmentOverlapChecker checker;
 
     public AvailabilityService(SeatRepository seatRepository,
                                BookingRepository bookingRepository,
                                StationRepository stationRepository,
+                               TrainRouteRepository trainRouteRepository,
+                               TripRepository tripRepository,
                                FareCalculator fareCalculator, SegmentOverlapChecker checker) {
         this.seatRepository = seatRepository;
         this.bookingRepository = bookingRepository;
         this.stationRepository = stationRepository;
+        this.trainRouteRepository = trainRouteRepository;
+        this.tripRepository = tripRepository;
         this.fareCalculator = fareCalculator;
         this.checker = checker;
     }
 
     public List<SeatAvailabilityResponse> findAvailableSeats(Long tripId, Long from, Long to) {
+        Trip trip = tripRepository.findById(tripId).orElseThrow(()->
+                new IllegalArgumentException("Trip not found"));
         Station origin = stationRepository.findById(from)
                 .orElseThrow(() -> new IllegalArgumentException("Origin station not found"));
         Station destination = stationRepository.findById(to)
                 .orElseThrow(() -> new IllegalArgumentException("Destination station not found"));
 
-        int originSeq = origin.getSequenceOrder();
-        int destSeq = destination.getSequenceOrder();
+        TrainRoute originRoute =
+                trainRouteRepository
+                        .findByTrainAndStation(
+                                trip.getTrain(),
+                                origin
+                        )
+                        .orElseThrow();
+        int originSeq =
+                originRoute.getStopOrder();
+
+        TrainRoute destinationRoute =
+                trainRouteRepository
+                        .findByTrainAndStation(
+                                trip.getTrain(),
+                                destination
+                        )
+                        .orElseThrow();
+
+        int destSeq = destinationRoute.getStopOrder();
 
         if (destSeq <= originSeq) {
             throw new IllegalArgumentException("Destination must be after origin");

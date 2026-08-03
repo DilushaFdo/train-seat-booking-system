@@ -3,24 +3,34 @@ import { JourneySearchComponent } from "./components/journey-search/journey-sear
 import { SeatAvailability } from './models/booking.models';
 import { SeatMapComponent } from "./components/seat-map/seat-map.component";
 import { BookingDialogComponent } from "./components/booking-dialog/booking-dialog.component";
+import { TrainSelectComponent } from "./components/train-select/train-select.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [JourneySearchComponent, SeatMapComponent, BookingDialogComponent],
+  imports: [JourneySearchComponent, SeatMapComponent, BookingDialogComponent, TrainSelectComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  tripId = 1;
   fromStationId?: number;
   toStationId?: number;
+  selectedTripId: number | null = null;
   selectedSeat: SeatAvailability | null = null;
-  refreshKey = 0; // used to force seat-map to reload after a booking
+  selectedDate?: string;
+  refreshKey = 0;
+  isStale = false;
 
-  onSearch(event: { from: number; to: number }): void {
-    this.fromStationId = event.from;
-    this.toStationId = event.to;
+  onSearch(event: { from: number; to: number; date: string }): void {
+  this.fromStationId = event.from;
+  this.toStationId = event.to;
+  this.selectedDate = event.date;
+  this.selectedTripId = null;
+  this.isStale = false;
+}
+
+  onTripSelected(tripId: number): void {
+    this.selectedTripId = tripId;
   }
 
   onSeatSelected(seat: SeatAvailability): void {
@@ -33,5 +43,9 @@ export class AppComponent {
 
   onBookingConfirmed(): void {
     this.refreshKey++; // triggers seat-map re-fetch, see below
+  }
+
+  onSelectionsStale(stale: boolean): void {
+    this.isStale = stale;
   }
 }

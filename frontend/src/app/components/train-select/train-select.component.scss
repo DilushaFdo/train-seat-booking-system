@@ -1,0 +1,89 @@
+.train-select {
+  max-width: 650px;
+  margin: 20px auto;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  color: #666;
+}
+
+.error {
+  color: #d9534f;
+  text-align: center;
+}
+
+.trip-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.train-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #222;
+  }
+
+  span {
+    color: #777;
+    font-size: 14px;
+  }
+}
+
+.time-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.time-card {
+  border: 2px solid #2563eb;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: #2563eb;
+    color: white;
+  }
+
+  .time {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .arrow {
+    font-size: 24px;
+  }
+}
+
+.time-card.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.status-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 13px;
+}

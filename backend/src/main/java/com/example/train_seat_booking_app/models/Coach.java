@@ -21,7 +21,7 @@ public class Coach {
     @JoinColumn(name = "train_id", nullable = false)
     private Train train;
 
-    @Column(name = "column_number", nullable = false)
+    @Column(name = "coach_number", nullable = false)
     private String coachNumber;
 
     @Enumerated(EnumType.STRING)

@@ -1,7 +1,7 @@
 <div class="journey-search">
   <div class="field">
     <label>From</label>
-    <select [(ngModel)]="fromStationId">
+    <select [(ngModel)]="fromStationId" (ngModelChange)="onSelectionChange()">
       <option [ngValue]="null" disabled>Select origin</option>
       @for (station of stations; track station.id) {
         <option [ngValue]="station.id">{{ station.name }}</option>
@@ -11,12 +11,17 @@
 
   <div class="field">
     <label>To</label>
-    <select [(ngModel)]="toStationId">
+    <select [(ngModel)]="toStationId" (ngModelChange)="onSelectionChange()">
       <option [ngValue]="null" disabled>Select destination</option>
       @for (station of stations; track station.id) {
         <option [ngValue]="station.id">{{ station.name }}</option>
       }
     </select>
+  </div>
+
+  <div class="field">
+    <label>Date</label>
+    <input type="date" [(ngModel)]="selectedDate" (ngModelChange)="onSelectionChange()" />
   </div>
 
   <button (click)="onSearch()" [disabled]="!isValid">Search Seats</button>

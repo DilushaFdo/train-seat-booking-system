@@ -21,9 +21,6 @@ public class Station {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "sequence_order", nullable = false, unique = true)
-    private Integer sequenceOrder;
-
     @Column(name = "distance_km", nullable = false)
     private BigDecimal distanceKm;
 }

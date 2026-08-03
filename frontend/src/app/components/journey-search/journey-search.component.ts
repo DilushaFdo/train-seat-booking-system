@@ -15,8 +15,14 @@ export class JourneySearchComponent implements OnInit {
   stations: Station[] = [];
   fromStationId: number | null = null;
   toStationId: number | null = null;
+  selectedDate: string = new Date().toISOString().split('T')[0];
 
-  @Output() search = new EventEmitter<{ from: number; to: number }>();
+  private lastSearchedFrom: number | null = null;
+  private lastSearchedTo: number | null = null;
+  private lastSearchedDate: string | null = null;
+
+  @Output() search = new EventEmitter<{ from: number; to: number; date: string }>();
+  @Output() selectionsStale = new EventEmitter<boolean>();
 
   constructor(private stationService: StationService) {}
 
@@ -26,13 +32,26 @@ export class JourneySearchComponent implements OnInit {
     });
   }
 
+  onSelectionChange(): void {
+    const isStale =
+      this.lastSearchedFrom !== null &&
+      (this.fromStationId !== this.lastSearchedFrom ||
+       this.toStationId !== this.lastSearchedTo ||
+       this.selectedDate !== this.lastSearchedDate);
+    this.selectionsStale.emit(isStale);
+  }
+
   onSearch(): void {
-    if (this.fromStationId && this.toStationId && this.fromStationId !== this.toStationId) {
-      this.search.emit({ from: this.fromStationId, to: this.toStationId });
+    if (this.isValid) {
+      this.lastSearchedFrom = this.fromStationId;
+      this.lastSearchedTo = this.toStationId;
+      this.lastSearchedDate = this.selectedDate;
+      this.selectionsStale.emit(false);
+      this.search.emit({ from: this.fromStationId!, to: this.toStationId!, date: this.selectedDate });
     }
   }
 
   get isValid(): boolean {
-    return !!this.fromStationId && !!this.toStationId && this.fromStationId !== this.toStationId;
+    return !!this.fromStationId && !!this.toStationId && this.fromStationId !== this.toStationId && !!this.selectedDate;
   }
 }

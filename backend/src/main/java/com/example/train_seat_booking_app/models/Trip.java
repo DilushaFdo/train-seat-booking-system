@@ -1,11 +1,12 @@
 package com.example.train_seat_booking_app.models;
 
+import com.example.train_seat_booking_app.enums.TripStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Data
 @NoArgsConstructor
@@ -24,4 +25,14 @@ public class Trip {
 
     @Column(name = "trip_date", nullable = false)
     private LocalDate tripDate;
+
+    @Column(name="departure_time", nullable=false)
+    private LocalTime departureTime;
+
+    @Column(name="arrival_time", nullable=false)
+    private LocalTime arrivalTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TripStatus status;
 }

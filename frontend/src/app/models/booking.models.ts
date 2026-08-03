@@ -31,3 +31,12 @@ export interface BookingResponse {
   fare: number;
   status: string;
 }
+
+export interface TripSearchResult {
+  tripId: number;
+  trainName: string;
+  tripDate: string;
+  status: string;
+  departureTime: string;
+  arrivalTime: string;
+}

@@ -1,0 +1,48 @@
+<div class="train-select">
+  @if (loading) {
+    <p class="loading">Loading available trains...</p>
+  }
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+  @if (!loading && trips.length === 0 && !errorMessage) {
+    <p class="empty">
+      No trains run this route on this date.
+    </p>
+  }
+
+  @for (trip of trips; track trip.tripId) {
+    <div class="trip-card">
+      <div class="train-info">
+        <h3>{{ trip.trainName }}</h3>
+        <span>{{ trip.tripDate }}</span>
+      </div>
+      <div class="time-options">
+        <button
+          class="time-card"
+          [class.disabled]="trip.status !== 'SCHEDULED'"
+          (click)="onSelect(trip)"
+          [disabled]="trip.status !== 'SCHEDULED'">
+          <div class="time">
+            {{ trip.departureTime.substring(0,5) }}
+          </div>
+          <div class="arrow">
+            →
+          </div>
+          <div class="time">
+            {{ trip.arrivalTime.substring(0,5) }}
+          </div>
+        </button>
+
+        @if (trip.status !== 'SCHEDULED') {
+          <span class="status-badge">
+            {{ trip.status === 'COMPLETED'
+                ? 'Already departed'
+                : trip.status }}
+          </span>
+        }
+      </div>
+    </div>
+  }
+
+</div>

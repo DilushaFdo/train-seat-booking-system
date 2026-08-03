@@ -1,15 +1,10 @@
 package com.example.train_seat_booking_app.service;
 import com.example.train_seat_booking_app.dto.BookingRequest;
 import com.example.train_seat_booking_app.dto.BookingResponse;
+import com.example.train_seat_booking_app.enums.TripStatus;
 import com.example.train_seat_booking_app.exception.SeatUnavailableException;
-import com.example.train_seat_booking_app.models.Booking;
-import com.example.train_seat_booking_app.models.Seat;
-import com.example.train_seat_booking_app.models.Station;
-import com.example.train_seat_booking_app.models.Trip;
-import com.example.train_seat_booking_app.repository.BookingRepository;
-import com.example.train_seat_booking_app.repository.SeatRepository;
-import com.example.train_seat_booking_app.repository.StationRepository;
-import com.example.train_seat_booking_app.repository.TripRepository;
+import com.example.train_seat_booking_app.models.*;
+import com.example.train_seat_booking_app.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -23,16 +18,20 @@ public class BookingService {
     private StationRepository stationRepository;
     private SeatRepository seatRepository;
     private BookingRepository bookingRepository;
+
+    private TrainRouteRepository trainRouteRepository;
     private FareCalculator fareCalculator;
     private SegmentOverlapChecker checker;
 
     public BookingService(BookingRepository bookingRepository, SeatRepository seatRepository,
                           TripRepository tripRepository, StationRepository stationRepository,
+                          TrainRouteRepository trainRouteRepository,
                           FareCalculator fareCalculator, SegmentOverlapChecker checker) {
         this.bookingRepository = bookingRepository;
         this.seatRepository = seatRepository;
         this.tripRepository = tripRepository;
         this.stationRepository = stationRepository;
+        this.trainRouteRepository = trainRouteRepository;
         this.fareCalculator = fareCalculator;
         this.checker = checker;
     }
@@ -41,21 +40,48 @@ public class BookingService {
     public BookingResponse createBooking(BookingRequest request) {
         Trip trip = tripRepository.findById(request.getTripId())
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
-        Seat seat = seatRepository.findById(request.getSeatId())
+
+        // Lock the seat row itself first
+        // concurrent booking attempts, even when no bookings exist yet.
+        Seat seat = seatRepository.findByIdForUpdate(request.getSeatId())
                 .orElseThrow(() -> new IllegalArgumentException("Seat not found"));
+
         Station origin = stationRepository.findById(request.getFromStationId())
                 .orElseThrow(() -> new IllegalArgumentException("Origin station not found"));
         Station destination = stationRepository.findById(request.getToStationId())
                 .orElseThrow(() -> new IllegalArgumentException("Destination station not found"));
 
-        int originSeq = origin.getSequenceOrder();
-        int destSeq = destination.getSequenceOrder();
+        TrainRoute originRoute =
+                trainRouteRepository
+                        .findByTrainAndStation(trip.getTrain(), origin)
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "Origin station not in train route"
+                                )
+                        );
+
+        TrainRoute destinationRoute =
+                trainRouteRepository
+                        .findByTrainAndStation(trip.getTrain(), destination)
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "Destination station not in train route"
+                                )
+                        );
+
+        if (trip.getStatus() != TripStatus.SCHEDULED) {
+            throw new IllegalArgumentException("This trip is not available for booking (status: " + trip.getStatus() + ").");
+        }
+
+        int originSeq = originRoute.getStopOrder();
+        int destSeq = destinationRoute.getStopOrder();
 
         if (destSeq <= originSeq) {
             throw new IllegalArgumentException("Destination must be after origin");
         }
 
-        // Locking query — blocks concurrent transactions for this exact seat+trip
+        // Now safe to check — we're holding the seat's lock, so no other
+        // transaction can be doing this same check-and-insert concurrently.
         List<Booking> existing = bookingRepository.findActiveBookingsForSeatAndTripForUpdate(seat.getId(), trip.getId());
 
         boolean conflict = checker.hasConflict(originSeq, destSeq, existing);
@@ -63,6 +89,7 @@ public class BookingService {
         if (conflict) {
             throw new SeatUnavailableException("This seat is already booked for an overlapping segment.");
         }
+
 
         BigDecimal fare = fareCalculator.calculateFare(origin, destination);
 

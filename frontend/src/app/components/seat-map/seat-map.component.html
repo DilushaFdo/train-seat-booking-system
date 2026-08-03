@@ -14,17 +14,38 @@
   @for (coach of coachGroups; track coach.coachNumber) {
     <div class="coach">
       <h4>Coach {{ coach.coachNumber }}</h4>
-      <div class="grid">
-        @for (seat of coach.seats; track seat.seatId) {
-          <button
-            class="seat"
-            [class.booked]="!seat.available"
-            [disabled]="!seat.available"
-            (click)="onSeatClick(seat)"
-            [title]="seat.available ? 'Fare: ' + seat.fare : 'Already booked'"
-          >
-            {{ seat.seatNumber }}
-          </button>
+
+      <div class="carriage">
+        @for (row of coach.rows; track $index) {
+          <div class="row">
+            <div class="side left">
+              @for (seat of row.left; track seat.seatId) {
+                <button
+                  class="seat"
+                  [class.booked]="!seat.available"
+                  [disabled]="!seat.available"
+                  (click)="onSeatClick(seat)"
+                  [title]="seat.available ? 'Fare: ' + seat.fare : 'Already booked'">
+                  {{ seat.seatNumber }}
+                </button>
+              }
+            </div>
+
+            <div class="aisle"></div>
+
+            <div class="side right">
+              @for (seat of row.right; track seat.seatId) {
+                <button
+                  class="seat"
+                  [class.booked]="!seat.available"
+                  [disabled]="!seat.available"
+                  (click)="onSeatClick(seat)"
+                  [title]="seat.available ? 'Fare: ' + seat.fare : 'Already booked'">
+                  {{ seat.seatNumber }}
+                </button>
+              }
+            </div>
+          </div>
         }
       </div>
     </div>

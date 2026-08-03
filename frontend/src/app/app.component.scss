@@ -1,0 +1,13 @@
+.stale-warning {
+  color: #e65100;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background: #fff3e0;
+  border-radius: 4px;
+  margin: 0.5rem 1rem;
+}
+
+.seat-map-wrapper.stale {
+  opacity: 0.4;
+  pointer-events: none; // prevents clicking stale/outdated seats
+}
