@@ -1,8 +1,11 @@
 .seat-map {
   padding: 1rem;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+}
 
   .status {
     color: #666;
@@ -14,12 +17,13 @@
   }
 
   .coach {
-    margin-bottom: 2rem;
+  margin-bottom: 2rem;
 
-    h4 {
-      margin-bottom: 0.75rem;
-    }
+  h4 {
+    margin-bottom: 0.75rem;
+    text-align: center;
   }
+}
 
   .carriage {
     display: inline-flex; 
@@ -76,4 +80,3 @@
       }
     }
   }
-}

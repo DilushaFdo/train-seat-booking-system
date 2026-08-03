@@ -146,14 +146,20 @@ because of an automated test specifically designed to create real contention.
 ### Denormalized sequence numbers on the Booking entity
 
 Each booking stores `originSeq`/`destinationSeq` as plain integers, in addition
-to `originStationId`/`destinationStationId`. Strictly, this is a 3NF violation,
-since the sequence numbers are derivable from the station reference. I chose to
-keep them because the overlap-checking logic (both in the pessimistic-locking
-approach and in the exclusion-constraint approach I originally prototyped)
-needs to compare plain integer ranges directly, without joining to the stations
-table on every check. Since station sequence order is effectively immutable
-once a route is configured, the risk of the denormalized values drifting out
-of sync is negligible in practice.
+to `originStationId`/`destinationStationId`.
+
+Strictly, this introduces controlled denormalization because these values can
+be derived from the train route configuration (`TrainRoute.stopOrder`). I chose
+to store them because the seat conflict detection logic works by comparing
+integer ranges directly, avoiding repeated joins to the route tables during
+availability checks and booking validation.
+
+The values are captured at booking time, representing the passenger's journey
+segment for that specific trip. Since route configurations are expected to be
+stable once trips are published, the risk of these stored values becoming
+inconsistent is low. If route editing after bookings becomes a requirement,
+additional safeguards such as immutable route versions or validation checks
+would be introduced.
 
 ### Unreserved coaches excluded from seat-level booking
 
@@ -182,7 +188,7 @@ fair, rather than a source of lost revenue, is that the segment-based booking
 model allows the remaining portion of the same seat's journey (e.g. Kandy to
 Badulla, after a Colombo Fort to Kandy booking) to be independently sold to a
 different passenger. The booking system is what recovers the revenue leadership
-identified as being left on the table — the fare model simply reflects actual
+identified as being left on the table - the fare model simply reflects actual
 distance travelled, with no passenger subsidizing another's unused segment.
 
 Unreserved coaches are out of scope for this seat-level fare model, since they

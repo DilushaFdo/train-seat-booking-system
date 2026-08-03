@@ -72,7 +72,7 @@ public class AvailabilityService {
         }
 
         List<Booking> existingBookings = bookingRepository.findActiveBookingsForTrip(tripId);
-        List<Seat> allReservedSeats = seatRepository.findAllReservedSeats();
+        List<Seat> allReservedSeats = seatRepository.findAllReservedSeatsByTrain(trip.getTrain().getId());
 
         BigDecimal fare = fareCalculator.calculateFare(origin, destination);
 

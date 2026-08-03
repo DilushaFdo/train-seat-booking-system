@@ -12,8 +12,14 @@ import java.util.Optional;
 
 public interface SeatRepository extends JpaRepository<Seat, Long> {
 
-    @Query("SELECT s FROM Seat s WHERE s.coach.type = 'RESERVED'")
-    List<Seat> findAllReservedSeats();
+    @Query("""
+        SELECT s 
+        FROM Seat s
+        JOIN s.coach c
+        WHERE c.type = 'RESERVED'
+        AND c.train.id = :trainId
+        """)
+    List<Seat> findAllReservedSeatsByTrain(@Param("trainId") Integer trainId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Seat s WHERE s.id = :seatId")
