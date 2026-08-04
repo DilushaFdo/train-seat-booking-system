@@ -68,7 +68,7 @@ public class DataSeeder implements CommandLineRunner {
         for (String[] row : stationData) {
             Station station = new Station();
             station.setName(row[0]);
-            station.setDistanceKm(new BigDecimal(row[1]));
+            station.setDistanceKm(new BigDecimal(row[2]));
             stationRepository.save(station);
         }
 

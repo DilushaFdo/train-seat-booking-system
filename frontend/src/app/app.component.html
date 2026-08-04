@@ -1,22 +1,34 @@
 <app-journey-search (search)="onSearch($event)" (selectionsStale)="onSelectionsStale($event)"></app-journey-search>
 
 @if (fromStationId && toStationId && !selectedTripId) {
-  <app-train-select
-  [fromStationId]="fromStationId"
-  [toStationId]="toStationId"
-  [date]="selectedDate!"
-  (tripSelected)="onTripSelected($event)">
-</app-train-select>
+  @if (isStale) {
+    <p class="stale-warning">Your selections have changed - click "Search Seats" to see updated trains.</p>
+  }
+
+  <div class="train-select-wrapper" [class.stale]="isStale">
+    <app-train-select
+      [fromStationId]="fromStationId"
+      [toStationId]="toStationId"
+      [date]="selectedDate!"
+      (tripSelected)="onTripSelected($event)">
+    </app-train-select>
+  </div>
 }
 
 @if (selectedTripId && fromStationId && toStationId) {
-  <app-seat-map
-    [tripId]="selectedTripId"
-    [fromStationId]="fromStationId"
-    [toStationId]="toStationId"
-    [refreshTrigger]="refreshKey"
-    (seatSelected)="onSeatSelected($event)">
-  </app-seat-map>
+  @if (isStale) {
+    <p class="stale-warning">Your selections have changed - click "Search Seats" to see updated availability.</p>
+  }
+
+  <div class="seat-map-wrapper" [class.stale]="isStale">
+    <app-seat-map
+      [tripId]="selectedTripId"
+      [fromStationId]="fromStationId"
+      [toStationId]="toStationId"
+      [refreshTrigger]="refreshKey"
+      (seatSelected)="onSeatSelected($event)">
+    </app-seat-map>
+  </div>
 }
 
 @if (selectedSeat && selectedTripId && fromStationId && toStationId) {
