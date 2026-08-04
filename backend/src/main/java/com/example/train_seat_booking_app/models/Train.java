@@ -1,5 +1,6 @@
 package com.example.train_seat_booking_app.models;
 
+import com.example.train_seat_booking_app.enums.TrainDirection;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,10 @@ public class Train {
             cascade=CascadeType.ALL,
             orphanRemoval=true)
     private List<TrainRoute> routes = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TrainDirection direction;
 
     public void addRoute(TrainRoute route) {
         routes.add(route);

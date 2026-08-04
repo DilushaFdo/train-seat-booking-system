@@ -1,6 +1,7 @@
 package com.example.train_seat_booking_app.seed;
 
 import com.example.train_seat_booking_app.enums.CoachType;
+import com.example.train_seat_booking_app.enums.TrainDirection;
 import com.example.train_seat_booking_app.enums.TripStatus;
 import com.example.train_seat_booking_app.repository.*;
 import com.example.train_seat_booking_app.models.*;
@@ -99,6 +100,7 @@ public class DataSeeder implements CommandLineRunner {
         // --- Train 1: Udarata Menike — stops at every station ---
         Train fullRouteTrain = new Train();
         fullRouteTrain.setName("Udarata Menike");
+        fullRouteTrain.setDirection(TrainDirection.UP);
 
         int order = 1;
 
@@ -115,6 +117,7 @@ public class DataSeeder implements CommandLineRunner {
         // --- Train 2: Podi Menike — Colombo Fort to Kandy only, skips Gampaha ---
         Train shortRouteTrain = new Train();
         shortRouteTrain.setName("Podi Menike");
+        shortRouteTrain.setDirection(TrainDirection.UP);
         List<String> shortRouteStops = List.of(
                 "Colombo Fort", "Ragama", "Veyangoda", "Polgahawela",
                 "Rambukkana", "Peradeniya", "Kandy"
@@ -137,6 +140,7 @@ public class DataSeeder implements CommandLineRunner {
         // --- Train 3: Udarata Menike (Down) — Badulla to Colombo Fort ---
         Train reverseRouteTrain = new Train();
         reverseRouteTrain.setName("Udarata Menike (Down)");
+        reverseRouteTrain.setDirection(TrainDirection.DOWN);
 
         List<String> reverseRouteStops = List.of(
                 "Badulla",

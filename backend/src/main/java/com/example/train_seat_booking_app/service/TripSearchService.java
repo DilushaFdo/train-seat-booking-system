@@ -51,7 +51,8 @@ public class TripSearchService {
                             trip.getDepartureTime(),
                             trip.getArrivalTime(),
                             routes.get(0).getStation().getName(),
-                            routes.get(routes.size() - 1).getStation().getName()
+                            routes.get(routes.size() - 1).getStation().getName(),
+                            trip.getTrain().getDirection().name()
                     );
                 })
                     .collect(Collectors.toList());

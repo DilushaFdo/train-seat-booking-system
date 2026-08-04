@@ -3,7 +3,7 @@
 
     @if (!confirmedBooking) {
       <h3>Confirm Booking</h3>
-      <p>Seat {{ seat.seatNumber }} (Coach {{ seat.coachNumber }}) — Fare: {{ seat.fare }}</p>
+      <p>Seat {{ seat.seatNumber }} (Coach {{ seat.coachNumber }}) - Fare: {{ seat.fare }}</p>
 
       <label>Passenger Name</label>
       <input type="text" [(ngModel)]="passengerName" placeholder="Enter full name" />

@@ -15,9 +15,11 @@ public class TripSearchResponse {
     private LocalTime arrivalTime;
     private String startStation;
     private String endStation;
+    private String direction;
 
     public TripSearchResponse(Long tripId, String trainName, LocalDate tripDate, String status,
-                              LocalTime depatureTime, LocalTime arrivalTime, String startStation, String endStation) {
+                              LocalTime depatureTime, LocalTime arrivalTime,
+                              String startStation, String endStation, String direction) {
         this.tripId = tripId;
         this.trainName = trainName;
         this.tripDate = tripDate;
@@ -26,5 +28,6 @@ public class TripSearchResponse {
         this.arrivalTime = arrivalTime;
         this.startStation = startStation;
         this.endStation = endStation;
+        this.direction = direction;
     }
 }
