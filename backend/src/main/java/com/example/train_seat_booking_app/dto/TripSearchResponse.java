@@ -13,13 +13,18 @@ public class TripSearchResponse {
     private String status;
     private LocalTime departureTime;
     private LocalTime arrivalTime;
+    private String startStation;
+    private String endStation;
 
-    public TripSearchResponse(Long tripId, String trainName, LocalDate tripDate, String status, LocalTime depatureTime, LocalTime arrivalTime) {
+    public TripSearchResponse(Long tripId, String trainName, LocalDate tripDate, String status,
+                              LocalTime depatureTime, LocalTime arrivalTime, String startStation, String endStation) {
         this.tripId = tripId;
         this.trainName = trainName;
         this.tripDate = tripDate;
         this.status = status;
         this.departureTime = depatureTime;
         this.arrivalTime = arrivalTime;
+        this.startStation = startStation;
+        this.endStation = endStation;
     }
 }

@@ -12,7 +12,7 @@ public class FareCalculator {
     private static final BigDecimal BASE_FARE = new BigDecimal("50.00");
 
     public BigDecimal calculateFare(Station origin, Station destination) {
-        BigDecimal distance = destination.getDistanceKm().subtract(origin.getDistanceKm());
+        BigDecimal distance = destination.getDistanceKm().subtract(origin.getDistanceKm()).abs();
         return BASE_FARE.add(distance.multiply(RATE_PER_KM)).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 }

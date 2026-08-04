@@ -39,4 +39,6 @@ export interface TripSearchResult {
   status: string;
   departureTime: string;
   arrivalTime: string;
+  startStation:string;
+  endStation:string;
 }

@@ -35,6 +35,8 @@ public class DataSeeder implements CommandLineRunner {
         this.tripRepository = tripRepository;
     }
 
+    private record TrainSchedule(LocalTime departure, LocalTime arrival) {}
+
     @Override
     public void run(String... args) {
         if (stationRepository.count() > 0) {
@@ -69,7 +71,6 @@ public class DataSeeder implements CommandLineRunner {
             stationRepository.save(station);
         }
 
-
         Map<String, Station> stationsByName = new HashMap<>();
         for (Station s : stationRepository.findAll()) {
             stationsByName.put(s.getName(), s);
@@ -102,7 +103,6 @@ public class DataSeeder implements CommandLineRunner {
         int order = 1;
 
         for (String stationName : fullRouteStops) {
-
             TrainRoute route = new TrainRoute();
             route.setTrain(fullRouteTrain);
             route.setStation(stationsByName.get(stationName));
@@ -134,15 +134,46 @@ public class DataSeeder implements CommandLineRunner {
 
         trainRepository.save(shortRouteTrain);
 
-        // --- Coaches, Seats, Trips — per train ---
-        List<Train> allTrains = List.of(fullRouteTrain, shortRouteTrain);
-        List<LocalDate> tripDates = List.of(
-                LocalDate.of(2026, 8, 5),
-                LocalDate.of(2026, 8, 5)
+        // --- Train 3: Udarata Menike (Down) — Badulla to Colombo Fort ---
+        Train reverseRouteTrain = new Train();
+        reverseRouteTrain.setName("Udarata Menike (Down)");
+
+        List<String> reverseRouteStops = List.of(
+                "Badulla",
+                "Ella",
+                "Bandarawela",
+                "Haputale",
+                "Nanu Oya",
+                "Talawakelle",
+                "Hatton",
+                "Nawalapitiya",
+                "Gampola",
+                "Kandy",
+                "Peradeniya",
+                "Rambukkana",
+                "Polgahawela",
+                "Veyangoda",
+                "Gampaha",
+                "Ragama",
+                "Colombo Fort"
         );
 
-        for (int t = 0; t < allTrains.size(); t++) {
-            Train train = allTrains.get(t);
+        order = 1;
+
+        for (String name : reverseRouteStops) {
+            TrainRoute route = new TrainRoute();
+            route.setTrain(reverseRouteTrain);
+            route.setStation(stationsByName.get(name));
+            route.setStopOrder(order++);
+            reverseRouteTrain.getRoutes().add(route);
+        }
+        trainRepository.save(reverseRouteTrain);
+
+        // --- Coaches, Seats, Trips — per train ---
+        List<Train> allTrains = List.of(fullRouteTrain, shortRouteTrain, reverseRouteTrain);
+        LocalDate tripDate = LocalDate.of(2026, 8, 5);
+
+        for (Train train : allTrains) {
 
             for (int i = 1; i <= 3; i++) {
                 Coach coach = new Coach();
@@ -167,39 +198,38 @@ public class DataSeeder implements CommandLineRunner {
                 coach.setType(CoachType.UNRESERVED);
                 coach.setSeatCount(80);
                 coachRepository.save(coach);
-                // no Seat rows — unreserved coaches don't need individual seats
             }
 
-            Trip morningTrip = new Trip();
-
-            morningTrip.setTrain(train);
-            morningTrip.setTripDate(
-                    LocalDate.of(2026,8,5)
-            );
-            morningTrip.setDepartureTime(
-                    LocalTime.of(5,55)
-            );
-            morningTrip.setArrivalTime(
-                    LocalTime.of(15,15)
-            );
-            morningTrip.setStatus(TripStatus.SCHEDULED);
-
-            tripRepository.save(morningTrip);
-
-            Trip eveningTrip = new Trip();
-
-            eveningTrip.setTrain(train);
-            eveningTrip.setTripDate(
-                    LocalDate.of(2026,8,5)
-            );
-            eveningTrip.setDepartureTime(
-                    LocalTime.of(20,30)
-            );
-            eveningTrip.setArrivalTime(
-                    LocalTime.of(5,0)
-            );
-            eveningTrip.setStatus(TripStatus.SCHEDULED);
-            tripRepository.save(eveningTrip);
+            // --- Trips: two scheduled services per train (morning + evening) ---
+            for (TrainSchedule schedule : getSchedulesFor(train.getName())) {
+                Trip trip = new Trip();
+                trip.setTrain(train);
+                trip.setTripDate(tripDate);
+                trip.setDepartureTime(schedule.departure());
+                trip.setArrivalTime(schedule.arrival());
+                trip.setStatus(TripStatus.SCHEDULED);
+                tripRepository.save(trip);
+            }
         }
+    }
+
+    private List<TrainSchedule> getSchedulesFor(String trainName) {
+        return switch (trainName) {
+            case "Udarata Menike" -> List.of(
+                    new TrainSchedule(LocalTime.of(5, 55), LocalTime.of(15, 15)),
+                    new TrainSchedule(LocalTime.of(14, 35), LocalTime.of(23, 55))
+            );
+            case "Podi Menike" -> List.of(
+                    new TrainSchedule(LocalTime.of(7, 30), LocalTime.of(11, 10)),
+                    new TrainSchedule(LocalTime.of(15, 35), LocalTime.of(19, 15))
+            );
+            case "Udarata Menike (Down)" -> List.of(
+                    new TrainSchedule(LocalTime.of(8, 47), LocalTime.of(17, 40)),
+                    new TrainSchedule(LocalTime.of(21, 25), LocalTime.of(6, 20))
+            );
+            default -> List.of(
+                    new TrainSchedule(LocalTime.of(6, 0), LocalTime.of(14, 0))
+            );
+        };
     }
 }

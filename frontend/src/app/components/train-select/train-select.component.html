@@ -15,8 +15,13 @@
     <div class="trip-card">
       <div class="train-info">
         <h3>{{ trip.trainName }}</h3>
-        <span>{{ trip.tripDate }}</span>
+      <div class="route">
+        {{ trip.startStation }}
+        <span>→</span>
+        {{ trip.endStation }}
       </div>
+    <span>{{ trip.tripDate }}</span>
+    </div>
       <div class="time-options">
         <button
           class="time-card"

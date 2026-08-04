@@ -1,14 +1,7 @@
 # Segment-Based Train Seat Booking System
 
-A train ticket booking system for Sri Lanka Railways' Colombo Fort-Badulla line,
-built around a core idea: a single reserved seat can be booked independently
-for multiple non-overlapping legs of a journey, rather than being locked to
-one passenger for an entire trip. For example, the same seat can be sold to
-one passenger from Colombo Fort to Kandy, and to a different passenger from
-Kandy to Badulla on that same service - as long as their segments don't overlap.
-
-The system enforces this safely even when multiple booking requests happen
-concurrently for the same seat.
+A segment-based train ticket booking system inspired by Sri Lanka Railways routes, built around a core idea: a single reserved seat can be booked independently for multiple non-overlapping legs of a journey, rather than being locked to one passenger for an entire trip.
+The system enforces this safely even when multiple booking requests happen concurrently for the same seat.
 
 ## Tech Stack
 
@@ -44,6 +37,8 @@ everything is handled automatically on `docker compose up`.
    - Train name
    - Departure time
    - Arrival time
+   - Starting station
+   - Ending station
 
 3. User selects a specific scheduled trip.
 
@@ -65,12 +60,23 @@ destination stop positions as a range (`[originSeq, destinationSeq)`).Two bookin
 only if their ranges overlap - this allows the same seat to be sold to multiple
 passengers for different, non-overlapping legs of the same trip, which is the
 core requirement of the system. The route order is maintained per train, allowing different trains to stop at
-different stations while sharing common stations in the network.
+different stations while sharing common stations in the network.The route order is directional. A Colombo Fort → Badulla trip and a Badulla → Colombo Fort trip can use the same physical stations but have different TrainRoute stopOrder values because the travelling sequence is reversed.
 
 ### Train vs Trip separation
 
-A Train represents the physical train, while a Trip represents a scheduled
-journey operated by that train on a specific date and time.
+This separation allows the same physical train to operate multiple services in a day, including different scheduled directions when configured.
+
+For example:
+
+Train:
+Udarata Menike
+
+Trips:
+- 05:55 Colombo Fort → Badulla
+- 20:30 Colombo Fort → Badulla
+- 06:00 Badulla → Colombo Fort
+
+Each Trip has its own route ordering, departure time, and arrival time.
 
 This separation allows the same train to operate multiple services in a day.
 
@@ -86,6 +92,30 @@ Trips:
 Bookings are linked to a Trip rather than directly to a Train. This ensures
 that seat availability and reservations are calculated for the correct
 scheduled journey.
+
+### Directional train routes
+
+Train routes are modeled separately from the Train entity using TrainRoute. Each TrainRoute entry represents a station stop and its order in that journey.
+
+This allows the same physical railway line to support journeys in opposite directions.
+
+For example:
+
+Colombo Fort → Badulla:
+
+Colombo Fort (0)
+Ragama (1)
+Kandy (7)
+Badulla (16)
+
+Badulla → Colombo Fort:
+
+Badulla (0)
+Kandy (9)
+Ragama (15)
+Colombo Fort (16)
+
+The route sequence is therefore based on the trip direction rather than the physical train itself.
 
 ### Concurrency safety: pessimistic locking vs. a database-level constraint
 
@@ -245,14 +275,12 @@ Given more time, I would prioritize, in this order:
 2. **Authentication** - Spring Security with JWT, so bookings are tied to an
    authenticated user rather than a free-text passenger name, with a
    booking history view per user.
-3. 3. **Expand automated testing coverage** - add more integration tests covering
+3. **Expand automated testing coverage** - add more integration tests covering
    multiple trips per train, route validation, seat availability edge cases,
    and booking cancellation scenarios.
 4. **Admin capability** - endpoints and a simple UI for managing stations,
    coaches, and trips, so the system's configurability extends to non-technical
    operators, not just database rows.
-5. **Dynamic/banded fare pricing**, replacing the current flat per-km rate.
+5. **Dynamic/banded fare pricing**, replacing the current flat  per-km rate.
 6. **Trip and schedule management**
-   Admin functionality for creating and updating train schedules,
-   departure times, arrival times, and route configurations without
-   modifying database records manually.
+   Currently trips and schedules are seeded automatically. A future admin module could allow operators to create, update, and manage train schedules, departure times, arrival times, and route configurations through the UI.
